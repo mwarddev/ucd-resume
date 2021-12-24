@@ -8,10 +8,10 @@ function userInformationHTML(user) {
         <div class="gh-content">
             <div class="gh-avatar">
                 <a href="${user.html_url}" target="_blank">
-                    <img src="${user.avatar_url}" width="80" height="80" alt="${user.login}" />                    
+                    <img src="${user.avatar_url}" width="80" height="80" alt="${user.login}" />
                 </a>
             </div>
-            <p>Followers: ${user.followers} - Following: ${user.following} <br> Repos: ${user.public_repos}</p>
+            <p>Followers: ${user.followers} - Following ${user.following} <br> Repos: ${user.public_repos}</p>
         </div>`;
 }
 
@@ -37,15 +37,20 @@ function repoInformationHTML(repos) {
 }
 
 function fetchGitHubInformation(event) {
+    $("#gh-user-data").html("");
+    $("#gh-repo-data").html("");
+
     var username = $("#gh-username").val();
     if (!username) {
         $("#gh-user-data").html(`<h2>Please enter a GitHub username</h2>`);
         return;
     }
 
-    $("#gh-user-data").html(`<div id="loader">
-                                 <img src="assets/css/loader.gif" alt="Loading..." />
-                             </div>`);
+    $("#gh-user-data").html(
+        `<div id="loader">
+            <img src="assets/css/loader.gif" alt="loading..." />
+        </div>`);
+
     $.when(
         $.getJSON(`https://api.github.com/users/${username}`),
         $.getJSON(`https://api.github.com/users/${username}/repos`)
@@ -55,12 +60,17 @@ function fetchGitHubInformation(event) {
             var repoData = secondResponse[0];
             $("#gh-user-data").html(userInformationHTML(userData));
             $("#gh-repo-data").html(repoInformationHTML(repoData));
-        }, function(errorResponse) {
+        },
+        function(errorResponse) {
             if (errorResponse.status === 404) {
-                $("#gh-user-data").html(`<h2>No info found for user: ${username}</h2>`);
+                $("#gh-user-data").html(
+                    `<h2>No info found for user ${username}</h2>`);
             } else {
                 console.log(errorResponse);
-                $("#gh-user-data").html(`<h2>Error: ${errorResponse.response.JSON.message}</h2>`)
+                $("#gh-user-data").html(
+                    `<h2>Error: ${errorResponse.responseJSON.message}</h2>`);
             }
         });
 }
+
+$(document).ready(fetchGitHubInformation);
